@@ -27,6 +27,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func setTopText(_ sender: Any) {
+        guard imageView.image != nil else {
+            let noImageAC = UIAlertController(title: "No image found!", message: "Choose an image before trying to add text to it!", preferredStyle: .alert)
+            noImageAC.addAction(UIAlertAction(title: "OK", style: .default))
+            present(noImageAC, animated: true)
+            
+            return
+        }
+        
         let topTextAC = UIAlertController(title: "Top text", message: "Insert a text to go at the top of the meme", preferredStyle: .alert)
         topTextAC.addTextField()
         
@@ -41,6 +49,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func setBottomText(_ sender: Any) {
+        guard imageView.image != nil else {
+            let noImageAC = UIAlertController(title: "No image found!", message: "Choose an image before trying to add text to it!", preferredStyle: .alert)
+            noImageAC.addAction(UIAlertAction(title: "OK", style: .default))
+            present(noImageAC, animated: true)
+            
+            return
+        }
+        
         let bottomTextAC = UIAlertController(title: "Bottom text", message: "Insert a text to go at the bottom of the meme", preferredStyle: .alert)
         bottomTextAC.addTextField()
         
@@ -58,6 +74,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         guard let image = info[.editedImage] as? UIImage else { return }
         
         dismiss(animated: true)
+
         imageView.image = image
     }
 }
