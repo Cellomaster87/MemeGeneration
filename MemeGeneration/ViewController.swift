@@ -12,11 +12,50 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet var imageView: UIImageView!
     var topText: String?
     var bottomText: String?
-    var renderer = UIGraphicsImageRenderer()
+    var chosenImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+    }
+    
+    func render() {
+        let renderer = UIGraphicsImageRenderer(size: imageView.frame.size)
+        
+        let image = renderer.image { (ctx) in
+            // Render image
+            chosenImage?.draw(in: CGRect(x: 0, y: 0, width: imageView.frame.size.width, height: imageView.frame.size.height))
+            
+            // Prepare for rendering text
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.alignment = .center
+            paragraphStyle.lineBreakMode = .byWordWrapping
+            
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont(name: "Marker Felt", size: 40) as Any,
+                .foregroundColor: UIColor.white,
+                .paragraphStyle: paragraphStyle
+            ]
+            
+            let textFrameHeight: CGFloat = 100
+            let xOffset: CGFloat = 10
+            let textFrameWidth: CGFloat = imageView.frame.width - xOffset
+            let yOffset: CGFloat = 10
+            
+            if let topText = topText {
+                let attributedString = NSAttributedString(string: topText, attributes: attributes)
+                
+                attributedString.draw(with: CGRect(x: xOffset, y: yOffset, width: textFrameWidth, height: textFrameHeight), options: .usesLineFragmentOrigin, context: nil)
+            }
+            
+            if let bottomText = bottomText {
+                let attributedString = NSAttributedString(string: bottomText, attributes: attributes)
+                
+                attributedString.draw(with: CGRect(x: xOffset, y: imageView.frame.height - (yOffset * 6), width: textFrameWidth, height: textFrameHeight), options: .usesLineFragmentOrigin, context: nil)
+            }
+        }
+        
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = image
     }
 
     @IBAction func importPicture(_ sender: Any) {
@@ -41,7 +80,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let submitAction = UIAlertAction(title: "Submit", style: .default) { [weak self, weak topTextAC] _ in
             guard let topText = topTextAC?.textFields?[0].text else { return }
             self?.topText = topText
-            print(self?.topText ?? "")
+            self?.render()
         }
         
         topTextAC.addAction(submitAction)
@@ -63,7 +102,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let submitAction = UIAlertAction(title: "Submit", style: .default) { [weak self, weak bottomTextAC] _ in
             guard let bottomText = bottomTextAC?.textFields?[0].text else { return }
             self?.bottomText = bottomText
-            print(self?.bottomText ?? "")
+            self?.render()
         }
         
         bottomTextAC.addAction(submitAction)
@@ -73,9 +112,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = info[.editedImage] as? UIImage else { return }
         
+        chosenImage = image
         dismiss(animated: true)
-
-        imageView.image = image
+        
+        render()
     }
 }
-
