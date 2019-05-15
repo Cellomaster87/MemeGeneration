@@ -16,6 +16,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(shareImage))
     }
     
     func render() {
@@ -54,7 +56,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             }
         }
         
-        imageView.contentMode = .scaleAspectFit
         imageView.image = image
     }
 
@@ -116,5 +117,20 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismiss(animated: true)
         
         render()
+    }
+    
+    @objc func shareImage() {
+        guard let image = imageView.image?.jpegData(compressionQuality: 0.8) else {
+            let noImageAC = UIAlertController(title: "No image found!", message: "Choose an image before trying share it!", preferredStyle: .alert)
+            noImageAC.addAction(UIAlertAction(title: "OK", style: .default))
+            present(noImageAC, animated: true)
+            
+            return
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: [])
+        activityVC.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        
+        present(activityVC, animated: true)
     }
 }
